@@ -1,0 +1,445 @@
+\documentclass[12pt]{article}
+\usepackage{colortbl}
+\usepackage{booktabs}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{amsmath}
+\usepackage{listings}
+
+\usepackage{algorithm}
+\usepackage{algorithmic}
+
+\input{cs486_assign_preamble.tex}
+
+\lhead{CS 486/686}
+\chead{Spring 2024}
+\rhead{Assignment 3}
+\cfoot{v1.0}
+\lfoot{\copyright Wenhu Chen 2024}
+
+\title{CS 486/686 Assignment 3 \\ Spring 2024 \\ (100 marks) }
+\author{Instructor: Wenhu Chen}
+\date{Due Date: 11:59PM on July 30th}
+
+\newcommand\independent{\perp\!\!\!\perp}
+
+\begin{document}
+
+\maketitle
+
+\section*{Instructions}
+
+\begin{itemize}
+    \item Q1 is a written problem and Q2/Q3/Q4 are coding problems.
+
+    \item Submit your coding solutions for Q2, Q3 and Q4 to Marmoset. These parts will be graded automatically.
+
+    \item Submit your written solution of Q1 and the code of Q2/Q3/Q4 as a single PDF to LEARN. Don't submit the python file to LEARN, you need to convert them to PDF so that we can help provide feedback.
+
+    \item
+          No late assignment will be accepted. This assignment is to be done individually.
+
+    \item
+          Lead TAs:
+          \begin{itemize}
+              \item
+                    Sabrina Mokhtari (\url{s4mokhtari@uwaterloo.ca})
+              \item
+                    Dake Zhang (\url{dake.zhang@uwaterloo.ca})
+              \item
+                    Jheng-Hong Yang (\url{jheng-hong.yang@uwaterloo.ca})
+          \end{itemize}
+          The TAs' office hours will be scheduled and posted on Piazza.
+\end{itemize}
+
+\section*{Learning Goal}
+\begin{itemize}
+    \item Learning to implement uninformed search algorithm like DFS, BFS and IDS.
+    \item Learning to use simulated annealing to perform local search.
+    \item Learning to use heuristic-based search algorithm like A* search.
+    \item Learning to implement unsupervised clustering algorithm.
+\end{itemize}
+
+\section{Written Problem: Alarming Clock (30 Marks)}
+There is a lock containing 4 wheels, where each wheel contains 10 slots of 0, 1, 2, 3, 4, 5, 6, 7, 8, 9. You are able to rotate the wheel freely and even wrap it around. For example, you can turn 0 to 1, or turn 0 to 9. Each move consists of turning one wheel by a slot. The lock is initialized with ``0000", a string representing the state of the 4 wheels.
+
+Unlike any other lock, this one contains some dangerous states. It means that if the lock displays these states, it will trigger the alarm. We are trying to open the lock without triggering the alarm.
+
+We already know that the dangerous states are [``0201", ``0101", ``0102", ``1212", ``2002"]. How should we open the lock with minimum turns without triggering the alarm?
+
+Assuming we use the state representation as $x_1x_2x_3x_4$ using python string, where $x_i$ denotes the number in $i$-th wheel.
+
+
+    {\bf Please complete the following tasks and write down your solution.}
+
+\begin{enumerate}[(a)]
+    \item
+
+          Given the state representation we have defined, please implement a successor function to return all the possible safe states, i.e. no dangerous states should be returned for the successor function. Please complete the function.
+          \begin{lstlisting}[language=python]
+def get_successors(cur: str) -> List[str]:
+    successors = []
+    # cur means the current state
+    # please complete this function
+    return successors 
+\end{lstlisting}
+
+          \begin{markscheme} (4 marks)
+              \begin{itemize}
+                  \item
+                        (4 marks) correct implementation in Python
+              \end{itemize}
+
+          \end{markscheme}
+
+
+    \item
+          If we are interested in opening the lock with minimum turns. How can we implement the search algorithm? Please implement the search() function which returns the minimum turns. Remember that you can use the already implemented get\_successors() function.
+          \begin{lstlisting}[language=python]
+def search() -> int:
+    frontier = [("0000", 0)]
+    while frontier:
+        # please complete this function
+    return -1
+
+\end{lstlisting}
+
+          \begin{markscheme} (4 marks)
+              \begin{itemize}
+                  \item
+                        (4 marks) correct implementation in Python
+              \end{itemize}
+          \end{markscheme}
+
+    \item
+          We want to use the iterative deepening search algorithm to solve the problem. Assuming that DFS search with depth limit constraint is already implemented as dfs(). Please implement the code inside the ids\_search function. Is the iterative deepening search algorithm guaranteed to find a solution if it exists? What is the space complexity in this case assuming the gold node is in the depth of $M$, and the tree's maximum depth is $K$?
+          \begin{lstlisting}[language=python]
+def dfs(limit: int) -> int
+    ....
+    return -1
+
+def ids_search() -> int:
+    depth = 1
+    # please complete this function
+\end{lstlisting}
+
+          \begin{markscheme} (8 marks)
+              \begin{itemize}
+                  \item
+                        (4 marks) correctly implement the IDS search algorithm in Python
+                  \item
+                        (2 marks) correctly answer questions about IDS completeness
+                  \item
+                        (2 marks) correctly answer the space complexity.
+              \end{itemize}
+          \end{markscheme}
+
+    \item
+          We decide to use A* search algorithm to solve the problem. What would be the appropriate admissible heuristic function? Please first explain what heuristic function you want to choose, why it is admissible. Then you need to implement the following function:
+          \begin{lstlisting}[language=python]
+def get_heuristic(cur: str) -> int
+    # please implement this function
+\end{lstlisting}
+
+          \begin{markscheme} (6 marks)
+              \begin{itemize}
+                  \item
+                        (2 marks) explain the heuristic function and why it's good
+                  \item
+                        (4 marks) correct implementation of the heuristic function in Python
+              \end{itemize}
+
+          \end{markscheme}
+
+    \item
+          Can you do multi-path pruning with your proposed heuristics? Please explain why.
+          \begin{markscheme} (4 marks)
+              \begin{itemize}
+                  \item (4 marks) correct explanation
+              \end{itemize}
+          \end{markscheme}
+
+    \item
+          Please run the program (with target passcode as ``0202") to calculate what is the minimum number of turns. Please also demonstrate the intermediate states from the initial state to the target state:
+          \begin{markscheme} (4 marks)
+              \begin{itemize}
+                  \item (4 marks) Correctly demonstrate the intermediate states
+              \end{itemize}
+          \end{markscheme}
+
+\end{enumerate}
+
+\section{Coding Problem: Knapsack Problem (16 Marks)}
+
+You are required to implement the \textbf{Simulated Annealing Algorithm} to solve the \textbf{Knapsack Problem}.
+The Knapsack Problem is a classic combinatorial optimization problem, which is defined as follows: given a set of items, each with a weight and a value, determine the number of each item to include in a collection so that the total weight is less than or equal to a given limit and the total value is as large as possible.
+Note that you can use an \textbf{unlimited} number of instances of an item.
+
+You need to implement the function \texttt{knapsack\_solver()} in the provided \texttt{Q2.py} file.
+The input of this function includes an integer \texttt{capacity} (between 1 and 1000) representing the maximum weight the knapsack can hold and a list of \textit{n} (the number of items, between 1 and 100) tuples where each tuple contains two integers: the weight (between 1 and 100) and the value (between 1 and 100) of an item.
+The expected output is a list of \textit{n} integers where the $i$-th integer represents the number of times the $i$-th item is included in the knapsack.
+
+\textbf{Example:}
+
+\begin{lstlisting}[language=python]
+capacity = 50
+items = [(10, 60), (20, 200), (30, 120)]
+result = knapsack_solver(capacity, items)
+print(result)
+\end{lstlisting}
+
+\textbf{Expected Output:} \texttt{[1, 2, 0]}
+
+\textbf{Instructions:}
+
+\begin{enumerate}
+    \item Implement the Simulated Annealing Algorithm with \textbf{added memory}, i.e., keep track of the selection with the highest total value and return that best selection. Note that you are not expected to return the best selection as the algorithm is not guaranteed to find the global optimum.
+    \item Use a \textbf{geometric cooling} schedule where the temperature starts at 1000 and decreases by a factor of 0.99 after each iteration. Instead of the \texttt{T > 0} condition in the lecture slides, use \texttt{T > min\_T} to determine when to jump out of the while loop.
+    \item A \textbf{state} can be a selection of items, e.g., \texttt{[0, 1, 1]} for the example above. Its \textbf{cost} can be defined as the negative of its total value. In this way, a state with a lower cost will have a higher total value.
+    \item A helper function \texttt{generate\_neighbor()} has been implemented for you to generate a random neighbor state by randomly adding or removing an item. Note that this function does not check whether the total weight exceeds the capacity. You need to check the validity of the generated neighbor state in the body of your while loop. If it is invalid, simply decrease the temperature and continue to the next iteration.
+    \item You may add other helper functions in the Python file. But do not change the existing function signatures and parameters as it may lead to failed tests on Marmoset.
+          You can only use the Python libraries already imported in the file.
+    \item You may assume there always exists a solution, i.e., no special cases such as the total capacity is less than the weight of either item.
+    \item Submit your implemented \texttt{Q2.py} file to the \texttt{A3Q2} project on Marmoset.
+\end{enumerate}
+
+\begin{markscheme} (16 marks)
+    \begin{itemize}
+        \item (4 marks) 2 public tests * 2 marks = 4 marks
+        \item (12 marks) 4 secret tests * 3 marks = 12 marks
+    \end{itemize}
+\end{markscheme}
+
+
+\section{Coding Problem: Pacman (26 Marks)}
+
+You are probably familiar with the game \textbf{Pacman}. In this assignment, you will deal with a modified version of that game and learn to solve it using the $A^{*}$ algorithm.
+
+Given the input maze, you have to use the $A^{*}$ algorithm to find the path through which Pacman can get to the fruit.
+
+The input is a string that has the following format.
+
+\subsection{Input:}
+\begin{itemize}
+    \item The first line of the input gives Pacman's position in the grid.
+    \item The second line gives the fruit's position. Note that in both cases, the first number corresponds to the row, and the second number corresponds to the column.
+    \item The third line gives the dimensions of the grid, $m$ and $n$, where the first number shows the number of rows and the second shows the number of columns ($m, n \leq 100$).
+    \item The next $n$ lines each contain $m$ characters representing what that cell contains:
+          \begin{itemize}
+              \item \% represents walls (cells Pacman cannot step on),
+              \item \_ represents open spaces (cells Pacman can step in),
+              \item P represents Pacman, and
+              \item . represents the food.
+          \end{itemize}
+\end{itemize}
+
+Please note that, like in other implementation problems, the vertical axis is $x$ and the horizontal axis is $y$, and the indices start from 0.
+
+\subsection{Output:}
+The output should contain the path through which Pacman gets to the fruit using the $A^{*}$ algorithm. This will be shown with a list of coordinates. At each index, there is a list of size 2 which should contain the \textbf{string} of coordinates ($x$ and $y$) of the cells through which Pacman reaches the fruit, including Pacman's starting cell in the first index and the fruit's ($x$ and $y$) in the last. You should return this list.
+
+During the implementation, if there are multiple nodes with the same priority to add to the frontier, prioritize the order as up, left, right, and down respectively, if possible. When calculating the cost in the $A^{*}$ algorithm, the cost of each move is 1, except for when Pacman reaches the food, which is 0.
+
+Use the \textbf{Manhattan distance} as the heuristic function with respect to the food's coordinates.
+
+\paragraph{Sample Input:}
+\begin{verbatim}
+"""3 9
+5 1
+7 20
+%%%%%%%%%%%%%%%%%%%%
+%--------------%---%
+%-%%-%%-%%-%%-%%-%-%
+%--------P-------%-%
+%%%%%%%%%%%%%%%%%%-%
+%.-----------------%
+%%%%%%%%%%%%%%%%%%%%"""
+\end{verbatim}
+
+\paragraph{Sample Output:}
+\begin{verbatim}
+[['3', '9'], ['3', '10'], ['3', '11'], ['3', '12'], ['3', '13'], 
+['3', '14'], ['3', '15'], ['3', '16'], ['2', '16'], ['1', '16'], 
+['1', '17'], ['1', '18'], ['2', '18'], ['3', '18'], ['4', '18'], 
+['5', '18'], ['5', '17'], ['5', '16'], ['5', '15'], ['5', '14'], 
+['5', '13'], ['5', '12'], ['5', '11'], ['5', '10'], ['5', '9'], 
+['5', '8'], ['5', '7'], ['5', '6'], ['5', '5'], ['5', '4'], 
+['5', '3'], ['5', '2'], ['5', '1']]
+\end{verbatim}
+
+\begin{markscheme} (26 marks)
+    \begin{itemize}
+        \item (4 marks) 2 public tests * 6 marks = 12 marks
+        \item (12 marks) 2 secret tests * 7 marks = 14 marks
+    \end{itemize}
+\end{markscheme}
+
+Name the source file pacman.py and create a function called initialize() that takes the initial string as an input.
+\begin{verbatim}
+    def initialize(grid: str) -> list[list]:
+\end{verbatim}
+Zip the source file into pacman.zip and submit to \verb+Marmoset+ at \url{https://marmoset.student.cs.uwaterloo.ca/}. Be sure to submit your code to the project named \texttt{A3Q3}.
+
+
+\section{Coding Problem: $K$-means Clustering (28 Marks)}
+The basic principle of $k$-means clustering is rooted in the classic principle of least squares: finding a partition of the dataset into $k$ groups such that the sum of squared deviations within the partitions is minimized.
+Formally, we can define $k$-means clustering as finding the data partition $ C := \{c_1, \ldots, c_K\} $ that minimizes the within-cluster sum of squares (WCSS), using either Equation 1 or Equation 2.
+\begin{equation}
+    \text{WCSS} = \sum_{i=1}^k \sum_{x_j, x_l \in c_i} \| x_j - x_l \|^2
+\end{equation}
+\begin{equation}
+    \text{WCSS} = \sum_{i=1}^k |c_i| \cdot \text{Var}(c_i)
+\end{equation}
+where \( |c_i| \) is the size of cluster \( c_i \) and \( \text{Var}(c_i) \) is the variance within cluster \( c_i \).
+In practice, Equation 2 is often preferred because it simplifies the computational process, making $k$-means clustering more efficient and scalable for larger datasets.
+
+\paragraph{General instructions.}
+Configure your environments following the instructions.
+Zip and submit your source code to \texttt{Marmoset} under the \texttt{A3Q4} project.
+
+\paragraph{Environment Setup.}
+Follow the instructions in \texttt{README.md} to setup your project.
+We will utilize the ALOI dataset~\cite{schubert_2022_6355684}, which contains 110,250 vectors representing 1,000 small objects.
+To simulate the use case of discovering clusters of similar objects, we vary the parameter $ k \in \{ 10, 100, 500 \} $.
+For this exercise, we have selected features with only eight dimensions, achieved by using two divisions per HSV color component.\footnote{\url{https://zenodo.org/records/6355684/files/aloi-hsb-2x2x2.csv.gz}}
+This choice is informed by the fact that $k$-means tends to perform better in low-dimensional spaces.
+
+In \texttt{kmeans.py}, you will find \texttt{class KMeans} that contains the basic structure of the $k$-means algorithm.
+Complete the class following the instructions.
+
+\subsection{Lloyd's Algorithm}
+In this subsection, we will explore ``\textit{the} $k$-means algorithm'' as Lloyd's algorithm, which was initially developed at Bell Labs in 1957 and later published in 1982~\cite{1056489}.
+Lloyd's algorithm iteratively refines cluster centroids by alternating between assignment and update steps as described in Algorithm~\ref{alg:lloyd}.
+
+\begin{algorithm}
+    \caption{Lloyd's Algorithm}
+    \label{alg:lloyd}
+    \begin{algorithmic}[1]
+        \STATE \textbf{Input:} Dataset $X$ with $n$ data points, number of clusters $k$
+        \STATE \textbf{Output:} Cluster assignments and centroids
+        \STATE \textbf{Initialization:}
+        \STATE Randomly select $k$ initial centroids from $X$
+        \REPEAT
+        \STATE \textbf{Assignment Step:}
+        \FOR{each data point $x_i$}
+        \STATE Compute the distance to each centroid
+        \STATE Assign $x_i$ to the nearest centroid
+        \ENDFOR
+        \STATE \textbf{Update Step:}
+        \FOR{each cluster $j$}
+        \STATE Update centroid $c_j$ to the mean of all points assigned to cluster $j$
+        \ENDFOR
+        \UNTIL{convergence criterion is met}
+        \STATE \textbf{Return} cluster assignments and centroids
+    \end{algorithmic}
+\end{algorithm}
+
+\subsection{$k$-means\texttt{++} Initialization}
+Lloyd's algorithm terminates when it reaches a local optimum but cannot guarantee finding the global optimum. Therefore, it is common practice to restart the algorithm with different initial conditions and keep only the best result.
+In this subsection, we explore $k$-means\texttt{++}, an initialization strategy that can improve Lloyd's algorithm (or most $k$-means algorithms).
+
+\smallskip\noindent
+\textbf{[Instruction]}
+Your task is to implement the $k$-means\texttt{++} initialization method (see Algorithm \ref{alg:kmeanspp}) in \texttt{kmeans.py}.
+
+\begin{algorithm}[ht]
+    \caption{$k$-means\texttt{++}}
+    \label{alg:kmeanspp}
+    \begin{algorithmic}[1]
+        \STATE \textbf{Input:} Dataset $X$ with $n$ data points, number of clusters $k$
+        \STATE \textbf{Output:} Set of $k$ initial centroids
+        \STATE \textbf{Initialization:}
+        \STATE Randomly select the first centroid $c_1$ from $X$
+        \FOR{$i = 2$ to $k$}
+        \STATE Compute the distance $d(x)$ from each data point $x$ to the nearest already chosen centroid, where $d(x) = \min_{j \in \{1, \ldots, i-1\}} \|x - c_j\|^2$
+        \STATE Select the next centroid $c_i$ from $X$ with probability proportional to $d(x)$
+        \ENDFOR
+        \STATE \textbf{Return} the set of $k$ centroids
+    \end{algorithmic}
+\end{algorithm}
+
+\subsection{Elkan/Hamerly Algorithms}
+The optimization pattern for the $k$-means algorithm is a canonical expectation maximization (EM) type of optimization.
+To further improve the Lloyd's algorithm, we can focus on how to reduce the number of distance compuatations in the assignment step, i.e., avoiding checks for reassignment.
+In this section, we explore the two variants of such approaches.
+
+\smallskip\noindent
+\textbf{[Instruction]}
+Your task is to implement the Elkan's Algorithm~\ref{alg:elkan} and Hamerly's Algorithm~\ref{alg:hamerly} in \texttt{kmeans.py}.
+We will use the same ALOI dataset to run the two algorithms.
+
+\begin{algorithm}[h]
+    \caption{Elkan's Algorithm}
+    \label{alg:elkan}
+    \begin{algorithmic}[1]
+        \STATE \textbf{Input:} Dataset $X$ with $n$ data points, number of clusters $k$
+        \STATE \textbf{Output:} Cluster assignments and centroids
+        \STATE \textbf{Initialization:}
+        \STATE Randomly select $k$ initial centroids from $X$
+        \STATE Initialize upper bounds $u[i] \gets \infty$ and lower bounds $l[i][j] \gets 0$
+        \REPEAT
+        \STATE \textbf{Step 1: Compute distances between centroids}
+        \FOR{each pair of centroids $(c_j, c_m)$}
+        \STATE $d[j][m] \gets \|c_j - c_m\|$
+        \ENDFOR
+        \STATE \textbf{Step 2: Update bounds}
+        \FOR{each data point $x_i$}
+        \STATE Update $u[i]$ and $l[i][j]$
+        \ENDFOR
+        \STATE \textbf{Step 3: Assignment step}
+        \FOR{each data point $x_i$}
+        \IF{$u[i] > \frac{1}{2} \min_{j \neq \text{current}(i)} d[\text{current}(i)][j]$}
+        \STATE Compute exact distances to all centroids
+        \STATE Assign $x_i$ to the nearest centroid
+        \STATE Update $u[i]$ and $l[i][j]$
+        \ENDIF
+        \ENDFOR
+        \STATE \textbf{Update centroids} as the mean of assigned points
+        \UNTIL{convergence criterion is met}
+        \STATE \textbf{Return} cluster assignments and centroids
+    \end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[h]
+    \caption{Hamerly's Algorithm}
+    \label{alg:hamerly}
+    \begin{algorithmic}[1]
+        \STATE \textbf{Input:} Dataset $X$ with $n$ data points, number of clusters $k$
+        \STATE \textbf{Output:} Cluster assignments and centroids
+        \STATE \textbf{Initialization:}
+        \STATE Randomly select $k$ initial centroids from $X$
+        \STATE Initialize upper bounds $u[i] \gets \infty$ and lower bounds $l[i] \gets 0$
+        \REPEAT
+        \STATE \textbf{Step 1: Compute distances between centroids}
+        \FOR{each pair of centroids $(c_j, c_m)$}
+        \STATE $d[j][m] \gets \|c_j - c_m\|$
+        \ENDFOR
+        \STATE \textbf{Step 2: Update bounds}
+        \FOR{each data point $x_i$}
+        \STATE Update $u[i]$ and $l[i]$
+        \ENDFOR
+        \STATE \textbf{Step 3: Assignment step}
+        \FOR{each data point $x_i$}
+        \IF{$u[i] > \frac{1}{2} \min_{j \neq \text{current}(i)} d[\text{current}(i)][j]$}
+        \STATE Compute exact distances to all centroids
+        \STATE Assign $x_i$ to the nearest centroid
+        \STATE Update $u[i]$ and $l[i]$
+        \ENDIF
+        \ENDFOR
+        \STATE \textbf{Update centroids} as the mean of assigned points
+        \UNTIL{convergence criterion is met}
+        \STATE \textbf{Return} cluster assignments and centroids
+    \end{algorithmic}
+\end{algorithm}
+
+\begin{markscheme} (28 marks)
+    \begin{itemize}
+        \item (16 marks) 4 public tests * 4 marks = 16 marks
+        \item (12 marks) 3 secret tests * 4 marks = 12 marks
+    \end{itemize}
+\end{markscheme}
+
+
+\bibliographystyle{plain}
+\bibliography{ref}
+
+\end{document}

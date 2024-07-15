@@ -1,0 +1,9 @@
+__pycache__/
+j76xiao/
+output
+expected
+conda_setup.sh
+*.log
+a3.pdf
+A3.*
+!A3.tex
