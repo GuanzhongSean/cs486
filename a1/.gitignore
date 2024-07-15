@@ -1,0 +1,8 @@
+a1.*
+a1_old.*
+!a1.tex
+!a1_old.tex
+*.pdf
+plots/
+a1.zip
+test.py
