@@ -63,76 +63,91 @@ class KMeans:
         return X[indices]
 
     def _kmeans_pp(self, X: np.ndarray) -> np.ndarray:
-        centroids = []
-        centroids.append(X[np.random.choice(X.shape[0])])
+        centroids = [X[np.random.choice(X.shape[0])]]
 
-        for _ in range(1, self.n_clusters):
-            dist_sq = np.array([min([np.inner(c-x, c-x)
-                               for c in centroids]) for x in X])
+        for _ in range(self.n_clusters - 1):
+            # Compute the distance of each point to the nearest centroid
+            dist_sq = np.array([min([np.inner(c-x, c-x) for c in centroids])
+                                for x in X])
+
+            # Choose the next centroid based on the probability proportional to the squared distance
             probs = dist_sq / dist_sq.sum()
-            cumulative_probs = probs.cumsum()
-            r = np.random.rand()
-
-            for j, p in enumerate(cumulative_probs):
-                if r < p:
-                    i = j
-                    break
-
-            centroids.append(X[i])
+            centroids.append(X[np.random.choice(X.shape[0], p=probs)])
 
         return np.array(centroids)
 
     def _lloyd(self, X: np.ndarray) -> None:
-        for _ in range(self.max_iter):
+        for iteration in range(self.max_iter):
+            # Assignment step
             clusters = self._assign_clusters(X)
+
+            # Update centroids
             new_centroids = np.array([
-                X[clusters == i].mean(axis=0) if np.any(
-                    clusters == i) else self.centroids[i]
+                X[clusters == i].mean(axis=0) if np.any(clusters == i)
+                else self.centroids[i]
                 for i in range(self.n_clusters)
             ])
 
-            shift = np.linalg.norm(self.centroids - new_centroids)
-            if shift <= self.tol:
+            # Compute the new objective value
+            new_objective = self._compute_objective(X, clusters, new_centroids)
+
+            # Update the best centroids if the objective improves
+            if new_objective < self.best_objective:
+                self.best_centroids = new_centroids.copy()
+                self.best_objective = new_objective
+
+            # Check for convergence
+            if np.linalg.norm(self.centroids - new_centroids) <= self.tol:
                 break
 
+            # Always update centroids
             self.centroids = new_centroids
-            objective = self._compute_objective(X, clusters, self.centroids)
-
-            if objective < self.best_objective:
-                self.best_centroids = self.centroids.copy()
-                self.best_objective = objective
+            if iteration % 10 == 0 and self.verbose:
+                print(f"Iteration {iteration}: objective = {new_objective}")
 
     def _elkan(self, X: np.ndarray) -> None:
-        upper_bounds = np.full(X.shape[0], np.inf)
-        lower_bounds = np.zeros((X.shape[0], self.n_clusters))
-        centroid_dists = np.linalg.norm(
-            self.centroids[:, np.newaxis] - self.centroids, axis=2)
-
-        clusters = np.zeros(X.shape[0], dtype=int)
+        centroid_dists = np.zeros((self.n_clusters, self.n_clusters))
+        distances = cdist(X, self.centroids, 'euclidean')
+        clusters = np.argmin(distances, axis=1)
+        upper_bounds = np.min(distances, axis=1)
+        lower_bounds = distances
+        p = np.zeros(self.n_clusters)
 
         for iteration in range(self.max_iter):
             # Step 1: Compute distances between centroids
-            centroid_dists = np.linalg.norm(
-                self.centroids[:, np.newaxis] - self.centroids, axis=2)
+            centroid_dists = cdist(self.centroids, self.centroids, 'euclidean')
+            np.fill_diagonal(centroid_dists, np.inf)
+            s = np.min(centroid_dists, axis=1) / 2
 
             # Step 2: Update bounds
-            upper_bounds = np.linalg.norm(X - self.centroids[clusters], axis=1)
-            lower_bounds = np.maximum(
-                lower_bounds, centroid_dists[clusters] / 2)
+            upper_bounds += p[clusters]
+            lower_bounds = np.maximum(lower_bounds - p, 0)
 
             # Step 3: Assignment step
-            reassignment_mask = upper_bounds > np.min(lower_bounds, axis=1)
-            distances = cdist(X[reassignment_mask], self.centroids)
-            clusters[reassignment_mask] = np.argmin(distances, axis=1)
-            upper_bounds[reassignment_mask] = distances[np.arange(
-                len(distances)), clusters[reassignment_mask]]
+            mask1 = upper_bounds > s[clusters]
+            X_masked = X[mask1]
+            distances = np.full((X_masked.shape[0], self.n_clusters), np.inf)
+            for i in range(self.n_clusters):
+                mask2 = upper_bounds[mask1] < lower_bounds[mask1][:, i]
+                distances[mask2, i] = np.linalg.norm(
+                    X_masked[mask2] - self.centroids[i], axis=1)
+            upper_bounds[mask1] = np.min(distances, axis=1)
+            lower_bounds[mask1] = distances
+            clusters[mask1] = np.argmin(distances, axis=1)
 
             # Step 4: Update centroids
             new_centroids = np.array([
-                X[clusters == i].mean(axis=0) if np.any(
-                    clusters == i) else self.centroids[i]
+                X[clusters == i].mean(axis=0) if np.any(clusters == i)
+                else self.centroids[i]
                 for i in range(self.n_clusters)
             ])
+
+            # Calculate the distance that each centroid moved
+            p = np.linalg.norm(new_centroids - self.centroids, axis=1)
+
+            # Check for convergence
+            if np.linalg.norm(self.centroids - new_centroids) <= self.tol:
+                break
 
             # Compute the new objective value
             new_objective = self._compute_objective(X, clusters, new_centroids)
@@ -144,43 +159,53 @@ class KMeans:
 
             # Always update centroids
             self.centroids = new_centroids
-
-            # Check for convergence
             if iteration % 10 == 0 and self.verbose:
                 print(f"Iteration {iteration}: objective = {new_objective}")
-
-            if np.linalg.norm(self.centroids - new_centroids) <= self.tol:
-                break
 
     def _hamerly(self, X: np.ndarray) -> None:
-        upper_bounds = np.full(X.shape[0], np.inf)
-        lower_bounds = np.zeros(X.shape[0])
-        centroid_dists = np.linalg.norm(
-            self.centroids[:, np.newaxis] - self.centroids, axis=2)
-        clusters = np.zeros(X.shape[0], dtype=int)
+        centroid_dists = np.zeros((self.n_clusters, self.n_clusters))
+        distances = cdist(X, self.centroids, 'euclidean')
+        clusters = np.argmin(distances, axis=1)
+        upper_bounds = np.min(distances, axis=1)
+        lower_bounds = np.partition(distances, 1, axis=1)[:, 1]
+        p = np.zeros(self.n_clusters)
 
         for iteration in range(self.max_iter):
             # Step 1: Compute distances between centroids
-            centroid_dists = np.linalg.norm(
-                self.centroids[:, np.newaxis] - self.centroids, axis=2)
+            centroid_dists = cdist(self.centroids, self.centroids, 'euclidean')
+            np.fill_diagonal(centroid_dists, np.inf)
+            s = np.min(centroid_dists, axis=1) / 2
 
             # Step 2: Update bounds
-            upper_bounds = np.linalg.norm(X - self.centroids[clusters], axis=1)
-            lower_bounds = 0.5 * np.min(centroid_dists[clusters], axis=1)
+            sorted_indices = np.argpartition(p, 2)
+            r = sorted_indices[0]
+            r_prime = sorted_indices[1]
+            upper_bounds += p[clusters]
+            mask = r == clusters
+            lower_bounds[mask] -= p[r_prime]
+            lower_bounds[~mask] -= p[r]
 
             # Step 3: Assignment step
-            reassignment_mask = upper_bounds > lower_bounds
-            distances = cdist(X[reassignment_mask], self.centroids)
-            clusters[reassignment_mask] = np.argmin(distances, axis=1)
-            upper_bounds[reassignment_mask] = distances[np.arange(
-                len(distances)), clusters[reassignment_mask]]
+            mask = upper_bounds > np.maximum(s[clusters], lower_bounds)
+            distances = np.linalg.norm(
+                X[mask][:, np.newaxis] - self.centroids, axis=2)
+            upper_bounds[mask] = np.min(distances, axis=1)
+            lower_bounds[mask] = np.partition(distances, 2, axis=1)[:, 1]
+            clusters[mask] = np.argmin(distances, axis=1)
 
             # Step 4: Update centroids
             new_centroids = np.array([
-                X[clusters == i].mean(axis=0) if np.any(
-                    clusters == i) else self.centroids[i]
+                X[clusters == i].mean(axis=0) if np.any(clusters == i)
+                else self.centroids[i]
                 for i in range(self.n_clusters)
             ])
+
+            # Calculate the distance that each centroid moved
+            p = np.linalg.norm(new_centroids - self.centroids, axis=1)
+
+            # Check for convergence
+            if np.linalg.norm(self.centroids - new_centroids) <= self.tol:
+                break
 
             # Compute the new objective value
             new_objective = self._compute_objective(X, clusters, new_centroids)
@@ -192,13 +217,8 @@ class KMeans:
 
             # Always update centroids
             self.centroids = new_centroids
-
-            # Check for convergence
             if iteration % 10 == 0 and self.verbose:
                 print(f"Iteration {iteration}: objective = {new_objective}")
-
-            if np.linalg.norm(self.centroids - new_centroids) <= self.tol:
-                break
 
     def _assign_clusters(self, X: np.ndarray, point_index: Optional[int] = None, use_bounds: bool = False,
                          upper_bounds: Optional[np.ndarray] = None,

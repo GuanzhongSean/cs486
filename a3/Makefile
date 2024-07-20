@@ -1,7 +1,9 @@
 all: clean convert
 
 convert:
+	jupyter nbconvert --execute --inplace A3\ Jiaze\ Xiao\ \(j76xiao\).ipynb
 	jupyter nbconvert --to pdf A3\ Jiaze\ Xiao\ \(j76xiao\).ipynb
+	jupyter nbconvert --clear-output --inplace A3\ Jiaze\ Xiao\ \(j76xiao\).ipynb
 	mv A3\ Jiaze\ Xiao\ \(j76xiao\).pdf a3.pdf
 
 submit_%:
