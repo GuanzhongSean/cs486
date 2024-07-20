@@ -126,11 +126,14 @@ class KMeans:
             # Step 3: Assignment step
             mask1 = upper_bounds > s[clusters]
             X_masked = X[mask1]
-            distances = np.full((X_masked.shape[0], self.n_clusters), np.inf)
-            for i in range(self.n_clusters):
-                mask2 = upper_bounds[mask1] < lower_bounds[mask1][:, i]
-                distances[mask2, i] = np.linalg.norm(
-                    X_masked[mask2] - self.centroids[i], axis=1)
+            distances = np.linalg.norm(
+                X_masked[:, np.newaxis] - self.centroids, axis=2)
+            # distances = np.full((X_masked.shape[0], self.n_clusters), np.inf)
+            # for i in range(self.n_clusters):
+            #     mask2 = upper_bounds[mask1] > np.maximum(
+            #         lower_bounds[mask1][:, i], centroid_dists[clusters[mask1], i])
+            #     distances[mask2, i] = np.linalg.norm(
+            #         X_masked[mask2] - self.centroids[i], axis=1)
             upper_bounds[mask1] = np.min(distances, axis=1)
             lower_bounds[mask1] = distances
             clusters[mask1] = np.argmin(distances, axis=1)
