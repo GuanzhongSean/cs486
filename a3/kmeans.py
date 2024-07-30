@@ -128,6 +128,7 @@ class KMeans:
             X_masked = X[mask1]
             distances = np.linalg.norm(
                 X_masked[:, np.newaxis] - self.centroids, axis=2)
+            # The commented code below is the algorithm in the original paper but it is hard to vectorize
             # distances = np.full((X_masked.shape[0], self.n_clusters), np.inf)
             # for i in range(self.n_clusters):
             #     mask2 = upper_bounds[mask1] > np.maximum(

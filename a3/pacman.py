@@ -20,26 +20,26 @@ def get_neighbors(position, grid, rows, cols):
     for dx, dy in [(-1, 0), (0, -1), (0, 1), (1, 0)]:  # Up, Left, Right, Down
         nx, ny = x + dx, y + dy
         if 0 <= nx < rows and 0 <= ny < cols and grid[nx][ny] != '%':
-            neighbors.append(((nx, ny), -(2 * dx + dy)))
+            neighbors.append((nx, ny))
     return neighbors
 
 
 def a_star_search(pacman_pos, food_pos, grid, rows, cols, h=manhattan_distance):
     frontier = []
-    heappush(frontier, (0 + h(pacman_pos, food_pos), 0,
-                        0, pacman_pos, [pacman_pos]))  # tuple(f-value, direction, cost, cur_pos, path)
+    heappush(frontier, (0 + h(pacman_pos, food_pos),
+                        0, pacman_pos, [pacman_pos]))  # tuple(f-value, cost, cur_pos, path)
     visited = set()
 
     while frontier:
-        _, _, cost, cur_pos, path = heappop(frontier)
+        _, cost, cur_pos, path = heappop(frontier)
         visited.add(cur_pos)
         if cur_pos == food_pos:
             return path
 
         neighbors = get_neighbors(cur_pos, grid, rows, cols)
-        for neighbor, direction in neighbors:
+        for neighbor in neighbors:
             if neighbor not in visited:
-                heappush(frontier, (cost + 1 + h(neighbor, food_pos), direction,
+                heappush(frontier, (cost + 1 + h(neighbor, food_pos),
                                     cost + 1, neighbor, path + [neighbor]))
 
     return []

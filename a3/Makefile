@@ -18,4 +18,4 @@ submit_%:
 submit_all: submit_q2 submit_q3 submit_q4
 
 clean:
-	rm a3.pdf
+	rm -rf a3.pdf
