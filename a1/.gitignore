@@ -3,6 +3,7 @@ a1_old.*
 !a1.tex
 !a1_old.tex
 *.pdf
+!*_solutions.pdf
 plots/
 a1.zip
 test.py
